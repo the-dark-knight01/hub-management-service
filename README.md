@@ -48,7 +48,7 @@ The **Hub Management Service** is a backend service responsible for managing hub
 3.  **Verify the application**:
       Once the services are running, the application will be accessible. You can interact with the API using Swagger UI or Postman.
    
-4. ** Run Unit Test**:
+4. **Run Unit Test**:
 ``` 
  cd hub_management_service 
  go test ./...
