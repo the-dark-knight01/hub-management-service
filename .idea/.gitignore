@@ -7,3 +7,6 @@
 /dataSources/
 /dataSources.local.xml
 .idea/
+/dataSources.xml
+/vcs.xml
+/modules.xml
