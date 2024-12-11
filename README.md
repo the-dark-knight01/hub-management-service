@@ -34,7 +34,7 @@ The **Hub Management Service** is a backend service responsible for managing hub
 1. **Clone the repository**:
 
    ```
-   git clone https://github.com/yourusername/hub_management_service.git
+   git clone https://github.com/the-dark-knight01/hub-management-service
    cd hub_management_service
    ```
    
