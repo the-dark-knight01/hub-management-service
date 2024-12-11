@@ -1,0 +1,583 @@
+openapi: 3.0.0
+info:
+  title: Hub Management API
+  description: API for managing hubs, teams, and users with authentication.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /login:
+    post:
+      summary: Login to the system
+      description: Allows a user to log in to the system and obtain an authentication token.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username for login
+                  example: admin
+                password:
+                  type: string
+                  description: Password for login
+                  example: password
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Authentication token
+        '400':
+          description: Invalid login credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the problem
+
+  /hubs:
+    post:
+      summary: Create a new hub
+      description: Creates a new hub in the system.
+      operationId: createHub
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the hub
+                location:
+                  type: string
+                  description: Location of the hub
+      responses:
+        '200':
+          description: Hub created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  hub:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: Hub ID
+                      name:
+                        type: string
+                        description: Hub name
+        '400':
+          description: Bad request due to invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /hubs/{id}:
+    get:
+      summary: Find a hub by ID
+      description: Retrieves a hub by its ID.
+      operationId: findHubByID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the hub to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A hub object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: Hub ID
+                  name:
+                    type: string
+                    description: Hub name
+        '404':
+          description: Hub not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Hub not found message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /hubs/search:
+    get:
+      summary: Search hubs by name
+      description: Searches for hubs by name in the system and returns the associated teams.
+      operationId: searchHubsByName
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: name
+          in: query
+          required: false
+          description: Name of the hub to search for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of hubs matching the search criteria, including associated teams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: Hub ID
+                    name:
+                      type: string
+                      description: Hub name
+                    location:
+                      type: string
+                      description: Hub location
+                    teams:
+                      type: array
+                      description: List of teams belonging to the hub
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: Team ID
+                          name:
+                            type: string
+                            description: Team name
+        '400':
+          description: Bad request due to invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /teams:
+    post:
+      summary: Create a new team
+      description: Creates a new team in the system.
+      operationId: createTeam
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the team
+                hub_id:
+                  type: integer
+                  description: ID of the hub the team belongs to
+      responses:
+        '200':
+          description: Team created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  team:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: Team ID
+                      name:
+                        type: string
+                        description: Team name
+                      hub_id:
+                        type: integer
+                        description: ID of the hub the team belongs to
+        '400':
+          description: Bad request due to invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /teams/hub/{hub_id}:
+    get:
+      summary: Get teams by hub ID
+      description: Retrieves a list of teams for a specific hub.
+      operationId: getTeamsByHubID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: hub_id
+          in: path
+          required: true
+          description: The ID of the hub to retrieve teams for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of teams for the specified hub
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: Team ID
+                    name:
+                      type: string
+                      description: Team name
+                    hub_id:
+                      type: integer
+                      description: ID of the hub the team belongs to
+        '404':
+          description: No teams found for the specified hub
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: No teams found message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /teams/{id}:
+    get:
+      summary: Find a team by ID
+      description: Retrieves a team by its ID.
+      operationId: findTeamByID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the team to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A team object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: Team ID
+                  name:
+                    type: string
+                    description: Team name
+                  hub_id:
+                    type: integer
+                    description: ID of the hub the team belongs to
+        '404':
+          description: Team not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Team not found message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /users:
+    post:
+      summary: Create a new user
+      description: Creates a new user in the system.
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: User name
+                email:
+                  type: string
+                  description: User email
+                team_id:
+                  description: ID of the team the user belongs to
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success message
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: User ID
+                      name:
+                        type: string
+                        description: User name
+                      email:
+                        type: string
+                        description: User email
+                      team_id:
+                        description: ID of the team the user belongs to
+        '400':
+          description: Bad request due to invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /users/team/{team_id}:
+    get:
+      summary: Get users by team ID
+      description: Retrieves a list of users for a specific team.
+      operationId: getUsersByTeamID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: team_id
+          in: path
+          required: true
+          description: The ID of the team to retrieve users for.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of users for the specified team
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: User ID
+                    name:
+                      type: string
+                      description: User name
+                    email:
+                      type: string
+                      description: User email
+                    team_id:
+                      description: ID of the team the user belongs to
+        '404':
+          description: No users found for the specified team
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: No users found message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+
+  /users/{id}:
+    get:
+      summary: Find a user by ID
+      description: Retrieves a user by their ID.
+      operationId: findUserByID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A user object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: User ID
+                  name:
+                    type: string
+                    description: User name
+                  email:
+                    type: string
+                    description: User email
+                  team_id:
+                    description: ID of the team the user belongs to
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: User not found message
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
